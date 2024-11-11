@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  mysql:
+    image: mariadb:latest
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass123
+      - MYSQL_PASSWORD=pass234
+      - MYSQL_USER=user
+      - MYSQL_DATABASE=user_db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.mysql.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.mysql.entrypoints=mysql"
+      - "traefik.tcp.routers.mysql.service=mysql"
+      - "traefik.tcp.services.mysql.loadbalancer.server.port=3306"
+    networks:
+      - bashdays
+
+networks:
+  bashdays:
+    external: true

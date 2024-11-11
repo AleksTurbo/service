@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  apache:
+    image: httpd:latest
+    container_name: apache
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apache.rule=Host(`apache.aleksturbo.website`)"
+    networks:
+      - bashdays
+
+networks:
+  bashdays:
+    external: true

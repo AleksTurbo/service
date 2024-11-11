@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik:v3.1.5
+    command:
+    - "--api.insecure=false"
+    - "--providers.docker"
+    - "--api.dashboard=true"
+    - "--log.level=DEBUG"
+    - "--providers.docker.network=bashdays"
+    - "--providers.docker.exposedByDefault=false"
+    - "--accesslog=true"
+    - "--accesslog.addinternals"
+    - "--accesslog.filepath=/srv/service/traefik/access.log"
+
+    - "--entrypoints.http.address=:80"
+    - "--entrypoints.https.address=:443"
+    - "--entrypoints.mysql.address=:3306"
+
+    - "--entrypoints.http.http.redirections.entrypoint.to=https"
+    - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
+
+    - "--entrypoints.https.http.tls.certResolver=le"
+    - "--certificatesresolvers.le.acme.tlschallenge=true"
+    - "--certificatesresolvers.le.acme.email=aleksturbo@yandex.ru"
+    - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+
+    networks:
+      - bashdays
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3306:3306"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+      - ./:/srv/service/traefik
+    labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.dashboard.rule=Host(`traefik.aleksturbo.website`)"
+       - "traefik.http.routers.dashboard.entrypoints=https"
+       - "traefik.http.routers.dashboard.service=api@internal"
+       - "traefik.http.routers.dashboard.middlewares=auth,whitelist"
+       - "traefik.http.middlewares.auth.basicauth.users=admin:{SHA}H8TA47ycq1osqumQuoshkgoF5gk="
+       - "traefik.http.middlewares.whitelist.ipallowlist.sourcerange=127.0.0.1/32, 192.168.153.0/24, 178.155.12.9/32, 172.18.0.0/16"
+       
+
+networks:
+  bashdays:
+    external: true

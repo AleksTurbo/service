@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.aleksturbo.website`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    networks:
+      - bashdays
+
+networks:
+  bashdays:
+    external: true

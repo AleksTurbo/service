@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  who:
+    image: traefik/whoami:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.who.rule=Host(`who.aleksturbo.website`)"
+    networks:
+      - bashdays
+
+networks:
+  bashdays:
+    external: true
